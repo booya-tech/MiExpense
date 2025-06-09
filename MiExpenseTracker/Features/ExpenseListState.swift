@@ -7,3 +7,13 @@
 
 import Foundation
 
+struct ExpenseViewModel: Identifiable {
+    let id: UUID
+    let title: String
+    let amount: String
+    let date: String
+}
+
+struct ExpenseListState {
+    var expenses: [ExpenseViewModel] = []
+}

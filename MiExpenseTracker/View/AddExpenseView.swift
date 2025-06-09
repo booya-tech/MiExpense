@@ -18,6 +18,7 @@ struct AddExpenseView: View {
             TextField("Title", text: $title)
             TextField("Amount", text: $amount)
                 .keyboardType(.decimalPad)
+                
             Button("Save") {
                 // Create a new Expense object in the Core Data
                 let newExpense = Expense(context: viewContext)
