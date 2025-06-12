@@ -15,6 +15,10 @@ struct ContentView: View {
         sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
         animation: .default)
     private var items: FetchedResults<Item>
+    
+    @State private var isShowAddItemSheet = false
+    @State private var expenseTitle: String = ""
+    @State private var expenseAmount: String = ""
 
     var body: some View {
         NavigationView {
@@ -28,25 +32,51 @@ struct ContentView: View {
                 }
                 .onDelete(perform: deleteItems)
             }
+            .navigationTitle("MiExpense")
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
+                  ToolbarItem(placement: .navigationBarTrailing) {
+                      EditButton()
+                  }
+                  ToolbarItem(placement: .navigationBarLeading) {
+                      Button {
+                          isShowAddItemSheet = true
+                      } label: {
+                          Label("Add Expense", systemImage: "plus")
+                      }
+                  }
+              }
+            .sheet(isPresented: $isShowAddItemSheet) {
+                VStack(spacing: 20) {
+                    Text("Add New Expense")
+                        .font(.headline)
+                    
+                    TextField("Title", text: $expenseTitle)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding(.horizontal)
+                    
+                    TextField("Amount", text: $expenseAmount)
+                        .keyboardType(.decimalPad)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding(.horizontal)
+                    
+                    Button("Save") {
+                        if let amount = Double(expenseAmount), !expenseTitle.isEmpty {
+                            addItem(title: expenseTitle, amount: expenseAmount)
+                            expenseTitle = ""
+                            expenseAmount = ""
+                            isShowAddItemSheet = false
+                        }
                     }
+                    .buttonStyle(.borderedProminent)
                 }
+                .padding()
             }
-            Text("Select an item")
         }
     }
 
-    private func addItem() {
+    private func addItem(title: String, amount: String) {
         withAnimation {
             let newItem = Item(context: viewContext)
-            newItem.timestamp = Date()
-
             do {
                 try viewContext.save()
             } catch {
