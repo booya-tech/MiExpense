@@ -9,10 +9,10 @@ import Foundation
 import CoreData
 
 @objc(Expense)
-public class Expense: NSManagedObject {}
+public class Expense: NSManagedObject, Identifiable {}
 
 extension Expense {
-    @nonobjc public class func fetchRequest() ->  NSFetchRequest<Expense> {
+    @nonobjc public class func fetchRequest() -> NSFetchRequest<Expense> {
         return NSFetchRequest(entityName: "Expense")
     }
     

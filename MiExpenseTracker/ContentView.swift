@@ -12,9 +12,10 @@ struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
 
     @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
+        entity: Expense.entity(),
+        sortDescriptors: [NSSortDescriptor(keyPath: \Expense.date, ascending: true)],
         animation: .default)
-    private var items: FetchedResults<Item>
+    private var items: FetchedResults<Expense>
     
     @State private var isShowAddItemSheet = false
     @State private var expenseTitle: String = ""
@@ -24,10 +25,13 @@ struct ContentView: View {
         NavigationView {
             List {
                 ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp!, formatter: itemFormatter)")
-                    } label: {
-                        Text(item.timestamp!, formatter: itemFormatter)
+                    VStack(alignment: .leading) {
+                        Text(item.title)
+                            .font(.headline)
+                        Text("THB \(item.amount, specifier: "%.2f")")
+                        Text(item.date, formatter: itemFormatter)
+                            .font(.caption)
+                            .foregroundStyle(.gray)
                     }
                 }
                 .onDelete(perform: deleteItems)
@@ -61,7 +65,7 @@ struct ContentView: View {
                     
                     Button("Save") {
                         if let amount = Double(expenseAmount), !expenseTitle.isEmpty {
-                            addItem(title: expenseTitle, amount: expenseAmount)
+                            addItem(title: expenseTitle, amount: amount)
                             expenseTitle = ""
                             expenseAmount = ""
                             isShowAddItemSheet = false
@@ -74,9 +78,14 @@ struct ContentView: View {
         }
     }
 
-    private func addItem(title: String, amount: String) {
+    private func addItem(title: String, amount: Double) {
         withAnimation {
-            let newItem = Item(context: viewContext)
+            let newItem = Expense(context: viewContext)
+            newItem.id = UUID()
+            newItem.title = title
+            newItem.amount = amount
+            newItem.date = Date()
+            
             do {
                 try viewContext.save()
             } catch {
